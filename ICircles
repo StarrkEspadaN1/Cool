@@ -1,0 +1,22 @@
+using System;
+
+namespace GeoCalcPro
+{
+    public class Circle : Figure
+    {
+        public double Radius { get; set; }
+
+        public Circle(string name, string color, double radius) : base(name, color)
+        {
+            if (radius <= 0)
+                throw new ArgumentException("Радиус должен быть положительным.");
+            Radius = radius;
+        }
+
+        public override double GetArea() => Math.PI * Radius * Radius;
+        public override double GetPerimeter() => 2 * Math.PI * Radius;
+
+        public override string GetInfo() =>
+            base.GetInfo() + $", Радиус: {Radius:F2}";
+    }
+}

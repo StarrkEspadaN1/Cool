@@ -1,0 +1,7 @@
+namespace GeoCalcPro
+{
+    public interface ICostable
+    {
+        double CalculateMaterialCost(double pricePerUnit);
+    }
+}

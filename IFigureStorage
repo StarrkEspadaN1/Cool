@@ -1,0 +1,64 @@
+using System;
+
+namespace GeoCalcPro
+{
+    public class FigureStorage
+    {
+        private readonly Figure[] _figures = new Figure[10];
+
+        public void AddFigure(Figure f)
+        {
+            for (int i = 0; i < _figures.Length; i++)
+            {
+                if (_figures[i] == null)
+                {
+                    _figures[i] = f;
+                    Console.WriteLine("Фигура успешно добавлена.");
+                    return;
+                }
+            }
+            Console.WriteLine("Ошибка: хранилище заполнено (максимум 10 фигур).");
+        }
+
+        public Figure[] GetAll()
+        {
+            int count = 0;
+            foreach (var f in _figures)
+                if (f != null) count++;
+
+            Figure[] result = new Figure[count];
+            int idx = 0;
+            for (int i = 0; i < _figures.Length; i++)
+                if (_figures[i] != null)
+                    result[idx++] = _figures[i];
+            return result;
+        }
+
+        public Figure GetFigureByIndex(int index)
+        {
+            if (index < 0 || index >= _figures.Length)
+                throw new IndexOutOfRangeException("Индекс вне диапазона 0..9.");
+            return _figures[index];
+        }
+
+        public double GetTotalArea()
+        {
+            double sum = 0;
+            for (int i = 0; i < _figures.Length; i++)
+                if (_figures[i] != null)
+                    sum += _figures[i].GetArea();
+            return sum;
+        }
+
+        public int Count
+        {
+            get
+            {
+                int c = 0;
+                for (int i = 0; i < _figures.Length; i++)
+                    if (_figures[i] != null) c++;
+                return c;
+            }
+        }
+    }
+}

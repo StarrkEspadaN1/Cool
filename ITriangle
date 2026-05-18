@@ -1,0 +1,32 @@
+using System;
+
+namespace GeoCalcPro
+{
+    public class Triangle : Figure
+    {
+        public double A { get; set; }
+        public double B { get; set; }
+        public double C { get; set; }
+
+        public Triangle(string name, string color, double a, double b, double c) : base(name, color)
+        {
+            if (a <= 0 || b <= 0 || c <= 0 ||
+                a + b <= c || a + c <= b || b + c <= a)
+                throw new ArgumentException("Стороны треугольника должны быть положительными и удовлетворять неравенству треугольника.");
+            A = a;
+            B = b;
+            C = c;
+        }
+
+        public override double GetPerimeter() => A + B + C;
+
+        public override double GetArea()
+        {
+            double p = (A + B + C) / 2.0;
+            return Math.Sqrt(p * (p - A) * (p - B) * (p - C));
+        }
+
+        public override string GetInfo() =>
+            base.GetInfo() + $", Стороны: A={A:F2}, B={B:F2}, C={C:F2}";
+    }
+}

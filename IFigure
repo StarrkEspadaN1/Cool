@@ -1,0 +1,71 @@
+using System;
+
+namespace GeoCalcPro
+{
+    public abstract class Figure : ICostable
+    {
+        public string Color { get; set; }
+        public string Name { get; set; }
+
+        protected Figure(string name, string color)
+        {
+            Name = name;
+            Color = color;
+        }
+
+        public abstract double GetArea();
+        public abstract double GetPerimeter();
+
+        public virtual string GetInfo()
+        {
+            return $"Фигура: {Name}, Цвет: {Color}, Площадь: {GetArea():F2}, Периметр: {GetPerimeter():F2}";
+        }
+
+        public double CalculateMaterialCost(double pricePerUnit)
+        {
+            return GetArea() * pricePerUnit;
+        }
+
+        public static bool operator >(Figure a, Figure b)
+        {
+            if (a is null || b is null) return false;
+            return a.GetArea() > b.GetArea();
+        }
+
+        public static bool operator <(Figure a, Figure b)
+        {
+            if (a is null || b is null) return false;
+            return a.GetArea() < b.GetArea();
+        }
+
+        public static double operator +(Figure a, Figure b)
+        {
+            if (a is null || b is null) return 0;
+            return a.GetPerimeter() + b.GetPerimeter();
+        }
+
+        public static bool operator ==(Figure a, Figure b)
+        {
+            if (ReferenceEquals(a, b)) return true;
+            if (a is null || b is null) return false;
+            return Math.Abs(a.GetArea() - b.GetArea()) < 0.01;
+        }
+
+        public static bool operator !=(Figure a, Figure b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Figure other)
+                return this == other;
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return GetArea().GetHashCode();
+        }
+    }
+}

@@ -1,0 +1,184 @@
+using System;
+
+namespace GeoCalcPro
+{
+    class Program
+    {
+        static FigureStorage storage = new FigureStorage();
+
+        static void Main(string[] args)
+        {
+            bool exit = false;
+            while (!exit)
+            {
+                Console.WriteLine("\n===== GeoCalc Pro =====");
+                Console.WriteLine("1. Добавить фигуру");
+                Console.WriteLine("2. Показать все фигуры");
+                Console.WriteLine("3. Сравнить две фигуры");
+                Console.WriteLine("4. Посчитать стоимость материалов");
+                Console.WriteLine("5. Выход");
+                Console.Write("Выберите действие: ");
+
+                string choice = Console.ReadLine();
+                switch (choice)
+                {
+                    case "1": AddFigureMenu(); break;
+                    case "2": ShowAllFigures(); break;
+                    case "3": CompareFigures(); break;
+                    case "4": CalculateCostMenu(); break;
+                    case "5": exit = true; break;
+                    default: Console.WriteLine("Неверный выбор. Попробуйте снова."); break;
+                }
+            }
+        }
+
+        static void AddFigureMenu()
+        {
+            Console.WriteLine("\nВыберите тип фигуры:");
+            Console.WriteLine("1. Круг");
+            Console.WriteLine("2. Прямоугольник");
+            Console.WriteLine("3. Треугольник");
+            Console.Write("Тип: ");
+            string type = Console.ReadLine();
+
+            Console.Write("Введите название фигуры: ");
+            string name = Console.ReadLine();
+            Console.Write("Введите цвет: ");
+            string color = Console.ReadLine();
+
+            try
+            {
+                Figure figure = null;
+                switch (type)
+                {
+                    case "1":
+                        double r = ReadPositiveDouble("радиус");
+                        figure = new Circle(name, color, r);
+                        break;
+                    case "2":
+                        double w = ReadPositiveDouble("ширину");
+                        double h = ReadPositiveDouble("высоту");
+                        figure = new Rectangle(name, color, w, h);
+                        break;
+                    case "3":
+                        double a = ReadPositiveDouble("сторону A");
+                        double b = ReadPositiveDouble("сторону B");
+                        double c = ReadPositiveDouble("сторону C");
+                        figure = new Triangle(name, color, a, b, c);
+                        break;
+                    default:
+                        Console.WriteLine("Неизвестный тип фигуры.");
+                        return;
+                }
+                storage.AddFigure(figure);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка создания фигуры: {ex.Message}");
+            }
+        }
+
+        static double ReadPositiveDouble(string paramName)
+        {
+            while (true)
+            {
+                Console.Write($"Введите {paramName}: ");
+                if (double.TryParse(Console.ReadLine(), out double value) && value > 0)
+                    return value;
+                Console.WriteLine("Некорректное значение. Требуется положительное число.");
+            }
+        }
+
+        static void ShowAllFigures()
+        {
+            Figure[] figures = storage.GetAll();
+            if (figures.Length == 0)
+            {
+                Console.WriteLine("Хранилище пусто.");
+                return;
+            }
+            Console.WriteLine("\nСписок фигур:");
+            for (int i = 0; i < figures.Length; i++)
+            {
+                Console.WriteLine($"[{i}] {figures[i].GetInfo()}");
+            }
+            Console.WriteLine($"Общая площадь всех фигур: {storage.GetTotalArea():F2}");
+        }
+
+        static void CompareFigures()
+        {
+            Figure[] figures = storage.GetAll();
+            if (figures.Length < 2)
+            {
+                Console.WriteLine("Недостаточно фигур для сравнения (минимум 2).");
+                return;
+            }
+
+            Console.WriteLine("Доступные фигуры (индексы в общем списке, включая пустые слоты):");
+            for (int i = 0; i < 10; i++)
+            {
+                Figure f = storage.GetFigureByIndex(i);
+                if (f != null)
+                    Console.WriteLine($"Индекс {i}: {f.Name} (площадь {f.GetArea():F2})");
+            }
+
+            int idx1 = ReadIndex("Введите индекс первой фигуры: ");
+            int idx2 = ReadIndex("Введите индекс второй фигуры: ");
+
+            Figure a = storage.GetFigureByIndex(idx1);
+            Figure b = storage.GetFigureByIndex(idx2);
+
+            if (a == null || b == null)
+            {
+                Console.WriteLine("Одна из выбранных ячеек пуста.");
+                return;
+            }
+
+            if (a > b)
+                Console.WriteLine($"{a.Name} больше {b.Name} по площади.");
+            else if (a < b)
+                Console.WriteLine($"{a.Name} меньше {b.Name} по площади.");
+            else
+                Console.WriteLine($"Площади {a.Name} и {b.Name} равны (разница < 0.01).");
+
+            // Демонстрация сложения периметров
+            double totalPerimeter = a + b;
+            Console.WriteLine($"Сумма периметров: {totalPerimeter:F2}");
+        }
+
+        static int ReadIndex(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                if (int.TryParse(Console.ReadLine(), out int idx) && idx >= 0 && idx < 10)
+                    return idx;
+                Console.WriteLine("Индекс должен быть целым числом от 0 до 9.");
+            }
+        }
+
+        static void CalculateCostMenu()
+        {
+            Figure[] figures = storage.GetAll();
+            if (figures.Length == 0)
+            {
+                Console.WriteLine("Хранилище пусто.");
+                return;
+            }
+
+            Console.Write("Введите цену за квадратный метр: ");
+            if (!double.TryParse(Console.ReadLine(), out double price) || price <= 0)
+            {
+                Console.WriteLine("Некорректная цена.");
+                return;
+            }
+
+            Console.WriteLine("\nСтоимость покрытия для каждой фигуры:");
+            foreach (var f in figures)
+            {
+                double cost = f.CalculateMaterialCost(price);
+                Console.WriteLine($"{f.Name} (площадь {f.GetArea():F2}): {cost:F2} у.е.");
+            }
+        }
+    }
+}
